@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Grades</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+            color: #333;
+            background: #fff;
+        }
+
+        /* Top navigation */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            background: #47423e;
+            height: 40px;
+            padding: 0 12px;
+            color: #fff;
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 60px;
+        }
+
+        .top-bar-left .divider {
+            width: 1px;
+            height: 20px;
+            background: #666;
+        }
+
+        .top-bar-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #e8e8e8;
+            border-radius: 4px;
+            padding: 5px 12px;
+            width: 280px;
+            gap: 8px;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 13px;
+            color: #555;
+            width: 100%;
+        }
+
+        .search-box input::placeholder {
+            color: #888;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 60px;
+            justify-content: flex-end;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            color: #fff;
+        }
+
+        .icon-btn img {
+            display: block;
+            width: 18px;
+            height: 18px;
+        }
+
+        .icon-btn.icon-btn-home img {
+            width: 22px;
+            height: 22px;
+        }
+
+        /* Page title */
+        .page-title-bar {
+            padding: 14px 20px;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .page-title-bar h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        /* Layout */
+        .page-body {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: #f2f2f2;
+            border-right: 1px solid #ddd;
+        }
+
+        .term-info {
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
+        }
+
+        .term-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .term-header strong {
+            font-size: 14px;
+            color: #000;
+        }
+
+        .btn-change {
+            background: #fff;
+            border: 1px solid #5b9bd5;
+            color: #2e75b6;
+            font-size: 13px;
+            padding: 2px 14px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-change:hover {
+            background: #f0f7ff;
+        }
+
+        .term-info p {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 14px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            font-size: 13px;
+            color: #333;
+            text-decoration: none;
+            background: #f2f2f2;
+        }
+
+        .nav-item:hover {
+            background: #e8e8e8;
+        }
+
+        .nav-item.active {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding-left: 10px;
+        }
+
+        .nav-item img {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            padding: 20px 24px;
+            background: #fff;
+        }
+
+        .main-content h2 {
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 16px;
+        }
+
+        /* Table section */
+        .table-header-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 4px;
+        }
+
+        .row-count {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .grades-table-wrap {
+            border: 1px solid #ccc;
+        }
+
+        .grades-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .grades-table thead {
+            background: #f5f5f5;
+        }
+
+        .grades-table th {
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+        }
+
+        .grades-table th:first-child {
+            border-top: none;
+        }
+
+        .grades-table td {
+            padding: 12px 14px;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+
+        .grades-table tbody tr {
+            cursor: pointer;
+        }
+
+        .grades-table tbody tr:hover {
+            background: #fafafa;
+        }
+
+        .grades-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .grades-table .col-grade {
+            width: 60px;
+        }
+
+        .grades-table .col-units {
+            width: 70px;
+        }
+
+        .grades-table .col-points {
+            width: 100px;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .top-bar {
+                height: auto;
+                min-height: 44px;
+                padding: 8px 10px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .top-bar-left {
+                min-width: auto;
+                flex: 0 0 auto;
+                gap: 8px;
+            }
+
+            .top-bar-center {
+                order: 3;
+                flex: 1 1 100%;
+                justify-content: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+                max-width: none;
+            }
+
+            .top-bar-right {
+                min-width: auto;
+                flex: 1 1 auto;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-left: auto;
+            }
+
+            .page-title-bar {
+                padding: 12px 16px;
+            }
+
+            .page-title-bar h1 {
+                font-size: 16px;
+            }
+
+            .page-body {
+                flex-direction: column;
+                min-height: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .term-header {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .btn-change {
+                flex-shrink: 0;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+
+            .grades-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .grades-table {
+                min-width: 520px;
+            }
+
+            .grades-table th,
+            .grades-table td {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .top-bar-left .divider {
+                display: none;
+            }
+
+            .icon-btn {
+                padding: 6px;
+            }
+
+            .search-box {
+                padding: 6px 10px;
+            }
+
+            .search-box input {
+                font-size: 12px;
+            }
+
+            .nav-item {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .term-info {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <button class="icon-btn" aria-label="Back">
+                <img src="BACK BUTTON.svg" alt="">
+            </button>
+            <span class="divider"></span>
+        </div>
+        <div class="top-bar-center">
+            <div class="search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" placeholder="Search in Menu" readonly>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <button class="icon-btn icon-btn-home" aria-label="Home">
+                <img src="HOME BUTTON.svg" alt="">
+            </button>
+            <button class="icon-btn" aria-label="Menu">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2"/>
+                    <circle cx="12" cy="12" r="2"/>
+                    <circle cx="12" cy="19" r="2"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="page-title-bar">
+        <h1>View Grades</h1>
+    </div>
+
+    <div class="page-body">
+        <aside class="sidebar">
+            <div class="term-info">
+                <div class="term-header">
+                    <strong>Spring 2026</strong>
+                    <button class="btn-change" type="button">Change</button>
+                </div>
+                <p>Glendale Community College</p>
+                <p>Credit</p>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="MY CLASS SCHEDULE.svg" alt="">
+                            <span>My Class Schedule</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item active" href="#">
+                            <img src="VIEW GRADES.svg" alt="">
+                            <span>View Grades</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="OFFICIAL TRANSCRIPT.svg" alt="">
+                            <span>Official Transcript</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="STUDENT UNOFFICIAL TRANSCRIPT.svg" alt="">
+                            <span>Student Unofficial Transcript</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="ENROLLMENT VERIFICATION.svg" alt="">
+                            <span>Enrollment Verification</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="MARICOPA STUDENT PROGRESS.svg" alt="">
+                            <span>Maricopa Student Progress</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="TRANSFER CREDIT REPORT.svg" alt="">
+                            <span>Transfer Credit Report</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="#">
+                            <img src="STUDENT TEST SCORES.svg" alt="">
+                            <span>Student Test Scores</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <h2>Grade Details</h2>
+
+            <div class="table-header-row">
+                <span class="row-count">4 rows</span>
+            </div>
+            <div class="grades-table-wrap">
+                <table class="grades-table">
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th class="col-units">Units</th>
+                            <th>Grading</th>
+                            <th class="col-grade">Grade</th>
+                            <th class="col-points">Grade Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ENG 102</td>
+                            <td>3.00</td>
+                            <td>Standard Letter Grades</td>
+                            <td>B</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>CRE101</td>
+                            <td>3.00</td>
+                            <td>Standard Letter Grades</td>
+                            <td>B</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>CIS156</td>
+                            <td>3.00</td>
+                            <td>Standard Letter Grades</td>
+                            <td>B</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>CIS126RH</td>
+                            <td>4.00</td>
+                            <td>Standard Letter Grades</td>
+                            <td>A</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script>
+        // Updates the address bar path when served over http(s) (e.g. local server).
+        // Domain will still be localhost — only the real Maricopa portal uses sisprodpub.erp.maricopa.edu.
+        (function () {
+            if (location.protocol === 'file:') return;
+            var path = '/psc/MCPACPRD_6/EMPLOYEE/SA/c/SSR_STUDENT_ACAD_REC_FL.SSR_MD_ACAD_REC_FL.GBL';
+            var query = '?Action=U&MD=Y&GMenu=SSR_STUDENT_ACAD_REC_FL&GComp=SSR_ACADREC_NAV_FL&GPage=SCC_START_PAGE_FL&scname=CS_SSR_ACADEMIC_RECORDS_FL';
+            if (location.pathname !== path || location.search !== query) {
+                history.replaceState(null, document.title, path + query);
+            }
+        })();
+    </script>
+</body>
+</html>
